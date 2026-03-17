@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso Completo — Administración Organizacional</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;min-height:100vh;color:#1a1a1a}
+#app{padding:16px;max-width:520px;margin:0 auto;padding-bottom:40px}
+.main-title{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:2px}
+.main-sub{font-size:12px;color:#888;margin-bottom:14px}
+
+/* UNIDADES */
+.units{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.unit-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #ddd;background:#fff;font-size:12px;font-weight:600;color:#666;cursor:pointer;font-family:inherit;transition:all .15s}
+.unit-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* TABS */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tab{padding:5px 12px;border-radius:20px;border:1.5px solid #ddd;background:#fff;font-size:11px;color:#666;cursor:pointer;font-family:inherit;transition:all .15s}
+.tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+.progress{height:4px;background:#e8e8e8;border-radius:2px;margin-bottom:10px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .3s}
+
+.card-counter{font-size:12px;color:#aaa;text-align:center;margin-bottom:8px}
+
+.scene{width:100%;height:380px;perspective:1000px;cursor:pointer;margin-bottom:14px}
+.card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:22px;border:1.5px solid #e0e0e0;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.back{transform:rotateY(180deg);justify-content:flex-start;overflow:hidden}
+.back-inner{width:100%;height:100%;overflow-y:auto}
+.card-label{font-size:11px;font-weight:600;letter-spacing:.05em;margin-bottom:12px;padding:4px 12px;border-radius:10px}
+.card-q{font-size:16px;font-weight:600;color:#1a1a1a;text-align:center;line-height:1.5}
+.card-hint{font-size:12px;color:#bbb;margin-top:14px}
+.back-title{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:10px;border-bottom:1px solid #eee;padding-bottom:8px;width:100%}
+.item{display:flex;gap:8px;margin-bottom:7px;font-size:13px;color:#1a1a1a;line-height:1.5}
+.item.sub{padding-left:14px}
+.num-badge{min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.nav{display:flex;gap:8px}
+.nav-btn{flex:1;padding:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;font-size:13px;color:#1a1a1a;cursor:pointer;font-family:inherit}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.flip-btn{flex:2;padding:12px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* colores */
+.c1{background:#E6F1FB;color:#0C447C} .c2{background:#EAF3DE;color:#27500A}
+.c3{background:#FAEEDA;color:#633806} .c4{background:#FBEAF0;color:#72243E}
+.c5{background:#E1F5EE;color:#085041} .c6{background:#EEEDFE;color:#3C3489}
+.c7{background:#FAECE7;color:#4A1B0C} .c8{background:#F1EFE8;color:#2C2C2A}
+.p1{background:#378ADD} .p2{background:#639922} .p3{background:#BA7517}
+.p4{background:#D4537E} .p5{background:#1D9E75} .p6{background:#7F77DD}
+.p7{background:#D85A30} .p8{background:#888780}
+
+@media (prefers-color-scheme: dark){
+  body{background:#111;color:#eee}
+  .unit-btn,.tab{background:#222;border-color:#333;color:#aaa}
+  .unit-btn.active,.tab.active{background:#eee;color:#111;border-color:#eee}
+  .face{background:#1e1e1e;border-color:#333;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+  .back-title{border-bottom-color:#333}
+  .item{color:#ddd}
+  .nav-btn{background:#1e1e1e;border-color:#333;color:#eee}
+  .flip-btn{background:#eee;color:#111}
+  .progress{background:#2a2a2a}
+  .card-q{color:#eee}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="main-title">Administración Organizacional</div>
+  <div class="main-sub">Unidad 1 — Repaso completo para examen</div>
+  <div class="units" id="units"></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="progress"><div class="prog-fill" id="prog-fill"></div></div>
+  <div class="card-counter" id="counter"></div>
+  <div class="scene" onclick="flipCard()">
+    <div class="card" id="card">
+      <div class="face front" id="front-face"></div>
+      <div class="face back" id="back-face"></div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn" id="btn-prev" onclick="navigate(-1)">← Ant.</button>
+    <button class="flip-btn" onclick="flipCard()">Voltear tarjeta</button>
+    <button class="nav-btn" id="btn-next" onclick="navigate(1)">Sig. →</button>
+  </div>
+</div>
+
+<script>
+var DATA = {
+  "Empresa y conceptos": {
+    color:"c1", prog:"p1",
+    decks: {
+      "La empresa": [
+        {
+          q:"¿Qué es una empresa y cuáles son sus objetivos?",
+          title:"Definición y objetivos de la empresa",
+          items:[
+            "Definición: unidad económica que combina recursos para producir bienes o servicios",
+            "Finalidad: satisfacer necesidades y obtener utilidades",
+            "Objetivos económicos: generar ganancias y utilidades",
+            "Objetivos sociales: generar empleo y bienestar a la comunidad",
+            "Objetivos técnicos: producir con calidad y eficiencia"
+          ]
+        },
+        {
+          q:"¿Cómo se clasifica una empresa?",
+          title:"Clasificación de las empresas",
+          items:[
+            "Por tamaño: micro, pequeña, mediana, grande",
+            "Por sector económico:",
+            "  • Primario — extracción (minería, agricultura)",
+            "  • Secundario — transformación (manufactura)",
+            "  • Terciario — servicios (comercio, educación)",
+            "Por origen del capital: pública, privada, mixta",
+            "Por constitución legal: persona física, persona moral"
+          ]
+        },
+        {
+          q:"¿Cómo funciona la empresa como sistema?",
+          title:"La empresa como sistema",
+          items:[
+            "La empresa funciona como un SISTEMA (analogía con sistemas)",
+            "Entradas (inputs): recursos humanos, materiales, financieros, técnicos",
+            "Proceso: transformación de los insumos mediante las áreas funcionales",
+            "Salidas (outputs): bienes o servicios para el mercado",
+            "Retroalimentación: el entorno reacciona y la empresa se ajusta",
+            "Es un sistema ABIERTO: interactúa con su entorno constantemente"
+          ]
+        }
+      ],
+      "Recursos y áreas": [
+        {
+          q:"¿Cuáles son los recursos de la empresa?",
+          title:"Recursos de la empresa",
+          items:[
+            "1. Humanos — el personal, la fuerza de trabajo",
+            "2. Materiales — instalaciones, maquinaria, equipo, materia prima",
+            "3. Financieros — dinero, créditos, inversiones",
+            "4. Técnicos / Tecnológicos — sistemas, métodos, procesos, software"
+          ]
+        },
+        {
+          q:"¿Cuáles son las áreas funcionales de la empresa?",
+          title:"Áreas funcionales (departamentos)",
+          items:[
+            "1. Producción / Operaciones — fabricar el bien o servicio",
+            "2. Mercadotecnia / Ventas — vender y promover",
+            "3. Finanzas / Contabilidad — administrar el dinero",
+            "4. Recursos Humanos — gestionar al personal",
+            "5. Dirección General — coordinar y tomar decisiones estratégicas"
+          ]
+        }
+      ]
+    }
+  },
+  "Aspectos legales": {
+    color:"c8", prog:"p8",
+    decks: {
+      "Personas y derechos": [
+        {
+          q:"¿Qué es la capacidad de goce y la capacidad jurídica?",
+          title:"Capacidad de goce y jurídica",
+          items:[
+            "Capacidad de goce: tener derechos (se adquiere desde el nacimiento)",
+            "Capacidad jurídica (de ejercicio): poder ejercer esos derechos por cuenta propia",
+            "  → Se adquiere al llegar a la mayoría de edad",
+            "Sujetos que pueden ejercer el derecho:",
+            "  • Personas físicas (individuos)",
+            "  • Personas morales (organizaciones, empresas)"
+          ]
+        },
+        {
+          q:"¿Cuál es la diferencia entre persona física y persona moral?",
+          title:"Persona física vs. Persona moral",
+          items:[
+            "Persona FÍSICA:",
+            "  • Es un individuo (ser humano)",
+            "  • Se da de alta en el SAT como persona física",
+            "  • Puede contratar como nómina u honorarios",
+            "  • Paga ISR sobre sus ingresos personales",
+            "Persona MORAL:",
+            "  • Es una organización o empresa",
+            "  • Se constituye mediante acta constitutiva",
+            "  • Se da de alta en el SAT como persona moral",
+            "  • Paga ISR sobre las utilidades de la empresa"
+          ]
+        },
+        {
+          q:"¿Cuáles son los 3 poderes del Estado?",
+          title:"Poderes del Estado mexicano",
+          items:[
+            "1. Poder Ejecutivo — aplica y ejecuta las leyes (Presidente)",
+            "2. Poder Legislativo — crea y aprueba las leyes (Congreso: Senado + Diputados)",
+            "3. Poder Judicial — interpreta y aplica justicia (Suprema Corte, tribunales)",
+            "Ingresos del Estado: impuestos, derechos, productos, aprovechamientos",
+            "El impuesto más importante: IVA (Impuesto al Valor Agregado)"
+          ]
+        }
+      ],
+      "Fiscal e impuestos": [
+        {
+          q:"¿Qué es el IVA y cómo funciona?",
+          title:"IVA — Impuesto al Valor Agregado",
+          items:[
+            "IVA = Impuesto al Valor Agregado",
+            "Grava el CONSUMO de bienes y servicios",
+            "Tasa general en México: 16%",
+            "Tasa fronteriza: 8%",
+            "Lo paga el consumidor final",
+            "La empresa lo recauda y lo entrega al SAT",
+            "Se declara mensualmente ante el SAT (dependiente de la SHCP)"
+          ]
+        },
+        {
+          q:"¿Qué es el ISR y quién lo paga?",
+          title:"ISR — Impuesto Sobre la Renta",
+          items:[
+            "ISR = Impuesto Sobre la Renta",
+            "Grava los INGRESOS de personas físicas y morales",
+            "Lo pagan tanto personas físicas como morales",
+            "Dos formas de contratación que afectan el ISR:",
+            "  • Nómina — el patrón retiene el ISR del trabajador",
+            "  • Honorarios — el profesionista declara y paga su propio ISR",
+            "Se declara ante el SAT (Servicio de Administración Tributaria)",
+            "SAT depende de la SHCP (Secretaría de Hacienda y Crédito Público)"
+          ]
+        }
+      ],
+      "Soc. Mercantiles": [
+        {
+          q:"¿Qué son las sociedades mercantiles y cómo se forman?",
+          title:"Sociedades mercantiles — Concepto",
+          items:[
+            "Son agrupaciones de personas que se unen para realizar actividades comerciales con fines de lucro",
+            "Se constituyen mediante un ACTA CONSTITUTIVA (documento legal)",
+            "El acta define: nombre, objeto social, socios, capital, reglas",
+            "Deben registrarse ante el SAT y el Registro Público de Comercio",
+            "Reguladas por la Ley General de Sociedades Mercantiles (LGSM)"
+          ]
+        },
+        {
+          q:"¿Cuáles son los tipos de sociedades mercantiles en México?",
+          title:"Tipos de sociedades mercantiles",
+          items:[
+            "1. S. en Nombre Colectivo (SNC) — responsabilidad ilimitada de socios",
+            "2. S. en Comandita Simple (SCS) — socios activos y comanditarios",
+            "3. S. de Responsabilidad Limitada (SRL) — responsabilidad limitada al capital",
+            "4. Sociedad Anónima (SA) — la más común; capital en acciones",
+            "5. S. en Comandita por Acciones (SCA) — mix entre SA y SCS",
+            "6. S. Cooperativa (SC) — beneficio mutuo entre socios, sin lucro primario"
+          ]
+        }
+      ]
+    }
+  },
+  "Administración": {
+    color:"c2", prog:"p2",
+    decks: {
+      "Definición y características": [
+        {
+          q:"¿Qué es la administración?",
+          title:"Definición de administración",
+          items:[
+            "Proceso de planear, organizar, dirigir y controlar los recursos de una organización",
+            "Finalidad: alcanzar sus objetivos de forma eficiente y eficaz",
+            "Es una CIENCIA, un ARTE y una TÉCNICA",
+            "Se aplica en cualquier tipo de organización (empresa, gobierno, familia, etc.)",
+            "El administrador es quien lleva a cabo este proceso"
+          ]
+        },
+        {
+          q:"¿Cuáles son las 7 características de la administración?",
+          title:"7 Características de la administración",
+          items:[
+            "1. Universalidad — se aplica en cualquier organismo social",
+            "2. Especificidad — tiene características propias que la distinguen de otras ciencias",
+            "3. Unidad temporal — sus etapas ocurren al mismo tiempo, no separadas",
+            "4. Unidad jerárquica — todos participan en un mismo nivel administrativo",
+            "5. Valor instrumental — es un medio para lograr objetivos, no un fin",
+            "6. Amplitud de ejercicio — se aplica en todos los niveles de la organización",
+            "7. Flexibilidad — se adapta a las necesidades de cada organización",
+            "8. Interdisciplinariedad — se apoya en otras ciencias (economía, psicología, etc.)"
+          ]
+        }
+      ]
+    }
+  },
+  "Escuelas admin.": {
+    color:"c3", prog:"p3",
+    decks: {
+      "Taylor": [
+        {
+          q:"¿Por qué se llama escuela 'científica' y quién la propone?",
+          title:"Escuela científica — Identidad",
+          items:[
+            "Propuesta por Frederick Winslow Taylor",
+            "Se llama 'científica' porque aplica métodos científicos al trabajo",
+            "Métodos: observación, medición y análisis de tareas",
+            "Objetivo: eliminar tiempos muertos y aumentar la productividad",
+            "Taylor = Padre de la Administración Científica"
+          ]
+        },
+        {
+          q:"¿Cuáles son los 4 principios de Taylor?",
+          title:"4 Principios de Taylor",
+          items:[
+            "1. Planeación — sustituir la improvisación por métodos científicos",
+            "2. Previsión — preparar y entrenar científicamente al trabajador",
+            "3. Control — verificar que el trabajo se ejecute según lo planeado",
+            "4. Ejecución — asignar responsabilidades para disciplinar el trabajo"
+          ]
+        },
+        {
+          q:"¿Cuáles son las 11 propuestas de Taylor?",
+          title:"11 Propuestas de Taylor",
+          items:[
+            "1. Estudio de tiempos y movimientos",
+            "2. Supervisión funcional (especializada por área)",
+            "3. Estandarización de herramientas e instrumentos",
+            "4. Selección científica del trabajador",
+            "5. Incentivos salariales y premios por producción",
+            "6. Separación del trabajo manual e intelectual",
+            "7. Diseño de la fábrica y del puesto de trabajo",
+            "8. Principio de excepción (supervisar solo lo anormal)",
+            "9. Sistema de clasificación de los productos",
+            "10. Reglas para los movimientos humanos",
+            "11. Fichas de instrucciones al trabajador"
+          ]
+        }
+      ],
+      "Fayol": [
+        {
+          q:"¿Por qué Fayol es padre de la administración clásica?",
+          title:"Escuela Clásica — Identidad",
+          items:[
+            "Propuesta por Henry Fayol",
+            "Demostró que la administración es UNIVERSAL (aplica a cualquier organización)",
+            "Definió el proceso administrativo como disciplina formal",
+            "2 aportaciones clave: universalidad + proceso administrativo",
+            "Fayol = Padre de la Administración Clásica o Moderna"
+          ]
+        },
+        {
+          q:"¿Cuáles son los 5 pasos del proceso administrativo de Fayol?",
+          title:"Proceso Administrativo de Fayol",
+          items:[
+            "1. Previsión — anticipar el futuro y fijar objetivos",
+            "2. Organización — estructurar recursos y tareas",
+            "3. Dirección — guiar y liderar al personal",
+            "4. Coordinación — armonizar todas las actividades",
+            "5. Control — verificar que todo se cumpla según lo planeado"
+          ]
+        },
+        {
+          q:"¿Cuáles son los 14 principios de Fayol?",
+          title:"14 Principios Generales de Fayol",
+          items:[
+            "1. División del trabajo — especialización aumenta eficiencia",
+            "2. Autoridad y responsabilidad — quien manda, responde",
+            "3. Disciplina — respeto a normas y acuerdos",
+            "4. Unidad de mando — cada empleado, un solo jefe",
+            "5. Unidad de dirección — un solo plan por objetivo",
+            "6. Subordinación del interés particular al general",
+            "7. Remuneración — pago justo para el trabajador",
+            "8. Centralización — equilibrio entre delegar y concentrar",
+            "9. Jerarquía (cadena escalar) — línea de autoridad clara",
+            "10. Orden — un lugar para cada cosa y cada cosa en su lugar",
+            "11. Equidad — trato justo y benevolente",
+            "12. Estabilidad del personal — reducir la rotación",
+            "13. Iniciativa — permitir al empleado proponer e idear",
+            "14. Unión del personal (esprit de corps) — fomentar el equipo"
+          ]
+        },
+        {
+          q:"¿Cuáles son las áreas funcionales según Fayol?",
+          title:"Áreas funcionales y habilidades (Fayol)",
+          items:[
+            "1. Técnicas — producción y fabricación",
+            "2. Comerciales — compras, ventas, intercambio",
+            "3. Financieras — manejo del capital",
+            "4. De seguridad — protección de bienes y personas",
+            "5. Contables — registros, balances, estadísticas",
+            "6. Administrativas — la más importante para Fayol:",
+            "  → Planear, organizar, dirigir, coordinar y controlar"
+          ]
+        }
+      ],
+      "Rel. Humanas": [
+        {
+          q:"¿Qué propone Mary Parker Follet?",
+          title:"Teoría del Conflicto — Follet",
+          items:[
+            "Escuela: Relaciones Humanas",
+            "Propone la Teoría del Conflicto",
+            "El conflicto NO es necesariamente negativo en las organizaciones",
+            "3 formas de resolver conflictos:",
+            "  a) Dominación — uno gana, otro pierde",
+            "  b) Compromiso — ambos ceden algo",
+            "  c) Integración — ambos ganan (la mejor opción)",
+            "Propone integración en lugar de imposición de autoridad"
+          ]
+        },
+        {
+          q:"¿Qué es el Experimento de Hawthorne de Elton Mayo?",
+          title:"Experimento de Hawthorne — Elton Mayo",
+          items:[
+            "Realizado por Elton Mayo en la planta Western Electric (Hawthorne)",
+            "Objetivo original: medir si la iluminación afectaba la productividad",
+            "Descubrimiento: el factor social importa MÁS que las condiciones físicas",
+            "3 observaciones / propuestas clave:",
+            "  1) El ambiente social y grupos informales influyen más en la productividad",
+            "  2) Los grupos informales tienen gran poder dentro de la organización",
+            "  3) El reconocimiento y la atención motivan más que el dinero"
+          ]
+        }
+      ],
+      "Weber": [
+        {
+          q:"¿Cuáles son los 4 elementos comunes en las organizaciones?",
+          title:"Escuela Estructuralista — 4 Elementos",
+          items:[
+            "Propuesta por Max Weber",
+            "Identifica 4 elementos presentes en TODA organización:",
+            "1. Autoridad — poder legítimo para dar órdenes",
+            "2. Comunicación — flujo de información en la organización",
+            "3. Comportamiento — conducta individual y grupal",
+            "4. Burocratización — sistemas formales de reglas y jerarquías"
+          ]
+        },
+        {
+          q:"¿Qué es la burocracia y cuál es su modelo ideal según Weber?",
+          title:"Concepto de Burocracia — Weber",
+          items:[
+            "Burocracia = sistema RACIONAL e ideal de organización",
+            "Basado en reglas claras, jerarquías definidas y procedimientos formales",
+            "Características del modelo ideal de burocracia:",
+            "  • División del trabajo clara",
+            "  • Jerarquía de autoridad definida",
+            "  • Sistema de reglas y normas formales",
+            "  • Impersonalidad (se obedece el cargo, no a la persona)",
+            "  • Meritocracia (selección por capacidad)",
+            "  • Comunicación formal por escrito"
+          ]
+        },
+        {
+          q:"¿Cuáles son los 3 tipos de autoridad según Weber?",
+          title:"3 Tipos de Autoridad — Weber",
+          items:[
+            "1. Legal / Racional",
+            "  → Basada en leyes, reglas y normas formalmente establecidas",
+            "  → Se obedece el CARGO, no a la persona",
+            "  → Es la base de la burocracia moderna",
+            "2. Carismática",
+            "  → Basada en la personalidad y cualidades del líder",
+            "  → Los seguidores obedecen por admiración o fe",
+            "3. Moral / Tradicional",
+            "  → Basada en costumbres, tradiciones y herencia",
+            "  → Se obedece porque 'siempre ha sido así'"
+          ]
+        }
+      ],
+      "Sistemas": [
+        {
+          q:"¿Qué propone el enfoque de sistemas?",
+          title:"Enfoque de Sistemas — Katz/Kahn",
+          items:[
+            "Autores: Katz/Kahn y Katz/Rozeinswig",
+            "La organización es un SISTEMA ABIERTO",
+            "Interactúa constantemente con su entorno",
+            "Componentes del sistema:",
+            "  • Entradas (inputs): recursos, información, personas",
+            "  • Proceso: transformación de los insumos",
+            "  • Salidas (outputs): productos, servicios, resultados",
+            "  • Retroalimentación: el entorno reacciona y la empresa se ajusta"
+          ]
+        }
+      ],
+      "Matemático": [
+        {
+          q:"Aportaciones de Shewhart y Simon al enfoque matemático",
+          title:"Enfoque Matemático — Shewhart y Simon",
+          items:[
+            "Walter Shewhart:",
+            "  • Ciclo de calidad (PHVA: Planear-Hacer-Verificar-Actuar)",
+            "  • Control estadístico de la producción",
+            "  • Gráficos estadísticos para monitorear procesos",
+            "Herbert Simon:",
+            "  • Modelo racional de toma de decisiones",
+            "  • Racionalidad limitada: se decide con información incompleta",
+            "  • Propone modelos matemáticos para apoyar decisiones"
+          ]
+        }
+      ],
+      "Neohumanístico": [
+        {
+          q:"¿Cuáles son los 5 niveles de la pirámide de Maslow?",
+          title:"Pirámide de Maslow — 5 Niveles",
+          items:[
+            "De la BASE hacia la CIMA:",
+            "1. Fisiológicas — comida, agua, sueño, abrigo (supervivencia básica)",
+            "2. Seguridad — estabilidad laboral, salud, vivienda, orden",
+            "3. Sociales / Afiliación — amor, amistad, pertenencia a grupos",
+            "4. Estima — reconocimiento, respeto, prestigio, autoconfianza",
+            "5. Autorrealización — desarrollo personal máximo, potencial propio",
+            "Clave: solo se busca el nivel superior cuando el anterior está satisfecho"
+          ]
+        },
+        {
+          q:"¿En qué consisten la Teoría X, Y y Z de McGregor?",
+          title:"Teorías X, Y y Z — McGregor",
+          items:[
+            "Teoría X (visión PESIMISTA):",
+            "  • El trabajador es FLOJO por naturaleza",
+            "  • Evita el trabajo y las responsabilidades",
+            "  • Necesita control estricto, supervisión y amenazas",
+            "  • No tiene ambición ni creatividad",
+            "Teoría Y (visión OPTIMISTA):",
+            "  • El trabajador puede ser CREATIVO y responsable",
+            "  • Se automotiva si las condiciones son favorables",
+            "  • Acepta y busca responsabilidades",
+            "Teoría Z (modelo japonés):",
+            "  • Trabajo en equipo y toma de decisiones por consenso",
+            "  • Lealtad mutua empresa-trabajador",
+            "  • Empleo de por vida",
+            "  • Desarrollo integral del trabajador"
+          ]
+        }
+      ]
+    }
+  }
+};
+
+// Estado
+var units = Object.keys(DATA);
+var activeUnit = units[0];
+var activeDeck = '';
+var cardIndex = 0;
+var isFlipped = false;
+
+function getDeckKeys(){ return Object.keys(DATA[activeUnit].decks); }
+function getCards(){ return DATA[activeUnit].decks[activeDeck]; }
+
+function buildUnits(){
+  var el = document.getElementById('units');
+  el.innerHTML = '';
+  units.forEach(function(u){
+    var b = document.createElement('button');
+    b.className = 'unit-btn' + (u===activeUnit?' active':'');
+    b.textContent = u;
+    b.onclick = function(){ activeUnit=u; activeDeck=getDeckKeys()[0]; cardIndex=0; isFlipped=false; buildUnits(); buildTabs(); render(); };
+    el.appendChild(b);
+  });
+}
+
+function buildTabs(){
+  var el = document.getElementById('tabs');
+  el.innerHTML = '';
+  var keys = getDeckKeys();
+  if(!activeDeck || keys.indexOf(activeDeck)===-1) activeDeck = keys[0];
+  keys.forEach(function(k){
+    var b = document.createElement('button');
+    b.className = 'tab' + (k===activeDeck?' active':'');
+    b.textContent = k;
+    b.onclick = function(){ activeDeck=k; cardIndex=0; isFlipped=false; buildTabs(); render(); };
+    el.appendChild(b);
+  });
+}
+
+function render(){
+  var unit = DATA[activeUnit];
+  var cards = getCards();
+  if(!cards || cards.length===0) return;
+  var card = cards[cardIndex];
+  var total = cards.length;
+
+  document.getElementById('counter').textContent = 'Tarjeta '+(cardIndex+1)+' de '+total;
+  document.getElementById('prog-fill').style.width = (((cardIndex+1)/total)*100)+'%';
+  document.getElementById('prog-fill').className = 'prog-fill '+unit.prog;
+  document.getElementById('card').classList.toggle('flipped', isFlipped);
+
+  // Front
+  document.getElementById('front-face').innerHTML =
+    '<span class="card-label '+unit.color+'">'+activeUnit+' — '+activeDeck+'</span>'+
+    '<div class="card-q">'+card.q+'</div>'+
+    '<div class="card-hint">Toca para ver la respuesta</div>';
+
+  // Back
+  var html = '';
+  card.items.forEach(function(item){
+    if(item===''){html+='<div style="height:5px"></div>';return;}
+    if(item.startsWith('  ')){
+      html+='<div class="item sub"><span style="color:#aaa;font-size:11px">→</span><span>'+item.trim()+'</span></div>';
+    } else {
+      var m=item.match(/^(\d+)\./);
+      if(m){
+        html+='<div class="item"><span class="num-badge '+unit.color+'">'+m[1]+'</span><span>'+item.replace(/^\d+\.\s*/,'')+'</span></div>';
+      } else {
+        html+='<div class="item"><span style="color:#aaa;margin-top:3px">•</span><span>'+item+'</span></div>';
+      }
+    }
+  });
+
+  document.getElementById('back-face').innerHTML =
+    '<div class="back-inner"><div class="back-title">'+card.title+'</div>'+html+'</div>';
+
+  document.getElementById('btn-prev').disabled = cardIndex===0;
+  document.getElementById('btn-next').disabled = cardIndex===total-1;
+}
+
+function flipCard(){
+  isFlipped=!isFlipped;
+  document.getElementById('card').classList.toggle('flipped',isFlipped);
+}
+
+function navigate(dir){
+  isFlipped=false; cardIndex+=dir; render();
+}
+
+// Init
+activeDeck = getDeckKeys()[0];
+buildUnits(); buildTabs(); render();
+</script>
+</body>
+</html>
